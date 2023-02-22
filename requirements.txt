@@ -1,0 +1,11 @@
+torch
+tqdm
+numpy
+fasttext-wheel
+wget
+PyDrive
+sudoai
+flask
+flask-restful
+pandas
+pysondb
