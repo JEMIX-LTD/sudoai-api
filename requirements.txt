@@ -9,3 +9,4 @@ flask
 flask-restful
 pandas
 pysondb
+flask-cors

@@ -1,8 +1,9 @@
 from sudoai.pipeline import Pipeline
-from flask import Flask
+from flask import Flask,request
 from flask_restful import Resource, Api, reqparse
 from urllib.parse import unquote
 from pysondb import db
+from flask_cors import CORS
 
 
 
@@ -10,6 +11,7 @@ from pysondb import db
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 def analyse_dialect_tunisian(_input):
 
@@ -48,35 +50,27 @@ def analyse_dialect_tunisian(_input):
 class Sudoai(Resource):
   
     def post(self,text):
-        return analyse_dialect_tunisian(unquote(text)),  201, {'Access-Control-Allow-Origin': '*'}
+        return analyse_dialect_tunisian(unquote(text))
 
 
-class ContactJemix(Resource):
-
-    def post(self):
-        
-        database = db.getDb("contact.json")
-        parser = reqparse.RequestParser()
-        parser.add_argument('name')
-        parser.add_argument('email')
-        parser.add_argument('msg_subject')
-        parser.add_argument('phone_number')
-        parser.add_argument('message')
-        args = parser.parse_args()
-
-        data = {"name" : args['name'] , 
-                "email" : args['email'], 
-                "subject" : args['msg_subject'], 
-                "tel" : args['phone_number'], 
-                "msg" : args['message']
+@app.route('/jmx/contact', methods=["POST"])
+def post():
+    
+    database = db.getDb("contact.json")
+    data = {
+            'name' : request.form.get('name'),
+            'email' : request.form.get('email'),
+            'msg_subject' : request.form.get('msg_subject'),
+            'phone_number' : request.form.get('phone_number'),
+            'message' : request.form.get('message')
             }
-        
-        database.add(data)
-        return "success" , 201, {'Access-Control-Allow-Origin': '*'}
+
+    
+    database.add(data)
+    return "success"
     
 
 api.add_resource(Sudoai, '/<text>')
-api.add_resource(ContactJemix , '/jmx/contact')
   
 if __name__ == '__main__':
     app.run(debug = True)
